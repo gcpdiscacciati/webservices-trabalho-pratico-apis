@@ -14,6 +14,26 @@ L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_toke
 
 mapa.on('click', handleMapClick);
 
+function getVideoLink(track){
+    let url = 'https://youtube.googleapis.com/youtube/v3/search?part=snippet&order=viewCount&q=' + encodeURI(track) + '&type=video&videoDefinition=high&key=AIzaSyAExjmURrgX4oK9ldd1j_beKpHjKG_aJbc'
+    console.log(url);
+    var req = new XMLHttpRequest();
+    req.onreadystatechange = function (){
+		
+		if(req.readyState == XMLHttpRequest.DONE) {
+			if (req.status == 0 || (req.status >= 200 && req.status < 400)) {
+				resp = JSON.parse(req.responseText);
+                let videoID = resp.items[0].id.videoId;
+                let videoURL = 'https://youtube.com/watch?v=' + videoID;
+                return videoURL;
+            }
+        }
+    }
+    req.open("GET", url, true);
+	req.send();
+
+}
+
 function handleMapClick(e){
     let lat = e.latlng.lat;
     let long = e.latlng.lng;
@@ -22,6 +42,10 @@ function handleMapClick(e){
     var req2 = new XMLHttpRequest();
     var country = '';
     var popup = L.popup();
+    popup
+        .setLatLng(e.latlng)
+        .setContent('Loading...')
+        .openOn(mapa);
 
     req2.onreadystatechange = function(){
         if(req2.readyState == XMLHttpRequest.DONE) {
@@ -74,5 +98,5 @@ function handleMapClick(e){
 
 function handleVideoClick(element){
     let track = element.textContent.trim();
-    console.log(track);
+    let videoURL = getVideoLink(track);
 }
